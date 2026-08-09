@@ -27,7 +27,7 @@ internal f64 reflectance(f64 cosine, f64 refraction_index)
 {
 	f64 r0 = (1 - refraction_index) / (1 + refraction_index);
 	r0	   = r0 * r0;
-	return r0 + (1 - r0) * pow((1 - cosine), 5);
+	return r0 + (1 - r0) * pow5((1 - cosine));
 }
 
 internal b32 scatter(material_t* mat, ray_t* r_in, hit_record_t* rec, color* attenuation, ray_t* scattered)

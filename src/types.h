@@ -65,6 +65,12 @@ inline f64 random_f64(f64 min, f64 max)
 	return min + (max - min) * random_f64();
 }
 
+inline f64 pow5(f64 x)
+{
+	f64 x2 = x * x;
+	return x2 * x2 * x;
+}
+
 /* -------------------------------------
  * (JJB): String
  */
@@ -195,7 +201,7 @@ internal vec3_t vec3_random(f64 min, f64 max)
 
 internal f64 vec3_dot(vec3_t a, vec3_t b)
 {
-	return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
 
 internal vec3_t vec3_cross(vec3_t a, vec3_t b)

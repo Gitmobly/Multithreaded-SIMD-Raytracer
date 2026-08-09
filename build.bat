@@ -12,7 +12,7 @@ if not exist "%BUILD_DIR%" mkdir "%BUILD_DIR%"
 set CLFLAGS=/std:c++20 /W4 /EHsc /clang:-Wno-unused-function /clang:-Wno-missing-braces /clang:-Wno-missing-field-initializers /clang:-Wno-deprecated-declarations
 
 if /I "%CONFIG%"=="release" (
-    set CONFIGFLAGS=/DNDEBUG /O2 /Zi
+    set CONFIGFLAGS=/DNDEBUG /O2 /Zi /arch:AVX2
 ) else (
     set CONFIGFLAGS=/DDEBUG_BUILD /DTESTS_ON /Zi /Od
 )
