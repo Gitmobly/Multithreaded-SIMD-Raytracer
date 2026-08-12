@@ -6,8 +6,9 @@
 #include "ray.h"
 #include "types.h"
 #include <cmath>
+#include <cstddef>
 
-typedef enum material_type_t
+typedef enum material_type_t : u8
 {
 	NO_MATERIAL,
 	METAL,
@@ -17,10 +18,10 @@ typedef enum material_type_t
 
 typedef struct material_t
 {
-	material_type_t type;
 	color			albedo;
 	f64				fuzz;
 	f64				refraction_index;
+	material_type_t type;
 } material_t;
 
 internal f64 reflectance(f64 cosine, f64 refraction_index)

@@ -18,14 +18,14 @@ int main(void)
 
 	material_t* ground_material = (material_t*)malloc(sizeof(material_t));
 	*ground_material			= material_t{
-				   .type			 = LAMBERTIAN,
-				   .albedo			 = {0.5, 0.5, 0.5},
-				   .fuzz			 = 0.0,
-				   .refraction_index = 0.0,
-	   };
+		.albedo			  = {.r = 0.5, .g = 0.5, .b = 0.5},
+		.fuzz			  = 0.0,
+		.refraction_index = 0.0,
+		.type			  = LAMBERTIAN,
+	};
 
 	b32 success;
-	success = object_group_add(world, object_t{SPHERE, {0, -1000, 0}, 1000.0, ground_material});
+	success = object_group_add(world, object_t{{0, -1000, 0}, 1000.0, ground_material, SPHERE});
 	if (!success)
 	{
 		exit(1);
@@ -50,10 +50,10 @@ int main(void)
 					color albedo = vec3_random() * vec3_random();
 
 					*sphere_material = material_t{
-						.type			  = LAMBERTIAN,
 						.albedo			  = albedo,
 						.fuzz			  = 0.0,
 						.refraction_index = 0.0,
+						.type			  = LAMBERTIAN,
 					};
 				}
 				else if (choose_mat < 0.95)
@@ -62,24 +62,24 @@ int main(void)
 					color albedo	 = vec3_random(0.5, 1);
 					f64	  fuzz		 = random_f64(0, 0.5);
 					*sphere_material = material_t{
-						.type			  = METAL,
 						.albedo			  = albedo,
 						.fuzz			  = fuzz,
 						.refraction_index = 0.0,
+						.type			  = METAL,
 					};
 				}
 				else
 				{
 					// glass
 					*sphere_material = material_t{
-						.type			  = DIELECTRIC,
 						.albedo			  = {},
 						.fuzz			  = 0.0,
 						.refraction_index = 1.5,
+						.type			  = DIELECTRIC,
 					};
 				}
 
-				success = object_group_add(world, object_t{SPHERE, center, 0.2, sphere_material});
+				success = object_group_add(world, object_t{center, 0.2, sphere_material, SPHERE});
 			}
 		}
 	}
@@ -89,13 +89,13 @@ int main(void)
 	material_t* mat3 = (material_t*)malloc(sizeof(material_t));
 
 	*mat1 = material_t{
-		.type			  = DIELECTRIC,
 		.albedo			  = {},
 		.fuzz			  = 0.0,
 		.refraction_index = 1.5,
+		.type			  = DIELECTRIC,
 	};
 
-	success = object_group_add(world, object_t{SPHERE, {0, 1, 0}, 1.0, mat1});
+	success = object_group_add(world, object_t{{0, 1, 0}, 1.0, mat1, SPHERE});
 	ASSERT(success && "Added too many objects to the world.");
 	if (!success)
 	{
@@ -103,13 +103,13 @@ int main(void)
 	}
 
 	*mat2 = material_t{
-		.type			  = LAMBERTIAN,
 		.albedo			  = {0.4, 0.2, 0.1},
 		.fuzz			  = 0.0,
 		.refraction_index = 0.0,
+		.type			  = LAMBERTIAN,
 	};
 
-	success = object_group_add(world, object_t{SPHERE, {-4, 1, 0}, 1.0, mat2});
+	success = object_group_add(world, object_t{{-4, 1, 0}, 1.0, mat2, SPHERE});
 	ASSERT(success && "Added too many objects to the world.");
 	if (!success)
 	{
@@ -117,13 +117,13 @@ int main(void)
 	}
 
 	*mat3 = material_t{
-		.type			  = METAL,
 		.albedo			  = {0.7, 0.6, 0.5},
 		.fuzz			  = 0.0,
 		.refraction_index = 0.0,
+		.type			  = METAL,
 	};
 
-	success = object_group_add(world, object_t{SPHERE, {4, 1, 0}, 1.0, mat3});
+	success = object_group_add(world, object_t{{4, 1, 0}, 1.0, mat3, SPHERE});
 	ASSERT(success && "Added too many objects to the world.");
 	if (!success)
 	{

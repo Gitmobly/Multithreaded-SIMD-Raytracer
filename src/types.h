@@ -72,21 +72,6 @@ inline f64 pow5(f64 x)
 }
 
 /* -------------------------------------
- * (JJB): String
- */
-
-typedef struct str8_t
-{
-	const char* string;
-	u64			length;
-} str8_t;
-
-internal str8_t str8_create(const char* string, u64 length)
-{
-	return {.string = string, .length = length};
-}
-
-/* -------------------------------------
  * (JJB): Math Types
  */
 
@@ -98,6 +83,10 @@ typedef struct vec3_t
 		struct
 		{
 			f64 x, y, z;
+		};
+		struct
+		{
+			f64 r, g, b;
 		};
 	};
 

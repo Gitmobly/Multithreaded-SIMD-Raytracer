@@ -10,9 +10,9 @@ typedef struct hit_record_t
 {
 	point3_t	p;
 	vec3_t		normal;
+	material_t* mat;
 	f64			t;
 	b32			front_face;
-	material_t* mat;
 } hit_record_t;
 
 internal void hit_record_set_face_normal(hit_record_t* hr, ray_t* r, vec3_t outward_normal)

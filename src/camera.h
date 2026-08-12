@@ -21,16 +21,16 @@
 
 typedef struct camera_t
 {
-	i32		 img_h;
 	point3_t center;
 	point3_t pixel00_loc;
 	vec3_t	 pixel_delta_u;
 	vec3_t	 pixel_delta_v;
-	f64		 pixel_samples_scale;
-	i32		 max_depth;
 	vec3_t	 u, v, w;
 	vec3_t	 defocus_disk_u;
 	vec3_t	 defocus_disk_v;
+	f64		 pixel_samples_scale;
+	i32		 img_h;
+	i32		 max_depth;
 } camera_t;
 
 internal vec3_t sample_square()

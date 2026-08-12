@@ -9,7 +9,7 @@
 
 #define MAX_WORLD_OBJECTS 1024
 
-typedef enum object_shape_t
+typedef enum object_shape_t : u8
 {
 	NO_SHAPE,
 	SPHERE,
@@ -17,10 +17,10 @@ typedef enum object_shape_t
 
 typedef struct object_t
 {
-	object_shape_t shape;
 	point3_t	   center;
 	f64			   radius; // For spheres
 	material_t*	   mat;
+	object_shape_t shape;
 } object_t;
 
 typedef struct object_group_t
