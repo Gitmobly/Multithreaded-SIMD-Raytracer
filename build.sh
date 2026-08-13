@@ -16,6 +16,7 @@ CLFLAGS=(
     -std=c++20
     -Wall
     -Wextra
+    -Wconversion
     -Wno-unused-function
     -Wno-missing-braces
     -Wno-missing-field-initializers

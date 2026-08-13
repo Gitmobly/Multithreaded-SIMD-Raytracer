@@ -18,7 +18,7 @@ typedef enum object_shape_t : u8
 typedef struct object_t
 {
 	point3_t	   center;
-	f64			   radius; // For spheres
+	f32			   radius; // For spheres
 	material_t*	   mat;
 	object_shape_t shape;
 } object_t;
@@ -36,19 +36,19 @@ internal b32 hit(object_t* object, ray_t* r, interval_t ray_t, hit_record_t* rec
 		case SPHERE:
 		{
 			vec3_t oc			= object->center - r->origin;
-			f64	   a			= vec3_length_squared(r->direction);
-			f64	   h			= vec3_dot(r->direction, oc);
-			f64	   c			= vec3_length_squared(oc) - object->radius * object->radius;
-			f64	   discriminant = h * h - a * c;
+			f32	   a			= vec3_length_squared(r->direction);
+			f32	   h			= vec3_dot(r->direction, oc);
+			f32	   c			= vec3_length_squared(oc) - object->radius * object->radius;
+			f32	   discriminant = h * h - a * c;
 
 			if (discriminant < 0)
 			{
 				return false;
 			}
 
-			f64 sqrtd = sqrt(discriminant);
+			f32 sqrtd = sqrtf(discriminant);
 
-			f64 root = (h - sqrtd) / a;
+			f32 root = (h - sqrtd) / a;
 			if (!interval_surrounds(ray_t, root))
 			{
 				root = (h + sqrtd) / a;
@@ -80,7 +80,7 @@ internal b32 evaluate_all_object_hits(object_group_t* o, ray_t* r, interval_t ra
 {
 	hit_record_t temp_rec;
 	b32			 hit_anything	= false;
-	f64			 closest_so_far = ray_t.max;
+	f32			 closest_so_far = ray_t.max;
 
 	for (i32 i = 0; i < o->count; ++i)
 	{

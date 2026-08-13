@@ -5,26 +5,26 @@
 
 typedef struct interval_t
 {
-	f64 min;
-	f64 max;
+	f32 min;
+	f32 max;
 } interval_t;
 
-internal f64 interval_size(interval_t i)
+internal f32 interval_size(interval_t i)
 {
 	return i.max - i.min;
 }
 
-internal b32 interval_contains(interval_t i, f64 x)
+internal b32 interval_contains(interval_t i, f32 x)
 {
 	return i.min <= x && x <= i.max;
 }
 
-internal b32 interval_surrounds(interval_t i, f64 x)
+internal b32 interval_surrounds(interval_t i, f32 x)
 {
 	return i.min < x && x < i.max;
 }
 
-internal f64 interval_clamp(interval_t i, f64 x)
+internal f32 interval_clamp(interval_t i, f32 x)
 {
 	if (x < i.min)
 	{

@@ -13,7 +13,7 @@
 #define ARRAYCOUNT(x) ((sizeof(x) / sizeof(0 [x])) / ((size_t)(!(sizeof(x) % sizeof(0 [x])))))
 
 #ifndef PI
-#define PI 3.14159265358979323846
+#define PI 3.14159265358979323846f
 #endif
 
 #define BYTES(size)		((size_t)(size))
@@ -50,24 +50,24 @@ typedef uint32_t b32;
 typedef float  f32;
 typedef double f64;
 
-inline f64 degrees_to_radians(f64 degrees)
+inline f32 degrees_to_radians(f32 degrees)
 {
-	return degrees * PI / 180.0;
+	return degrees * PI / 180.0f;
 }
 
-inline f64 random_f64()
+inline f32 random_f32()
 {
-	return (rand() / (RAND_MAX + 1.0));
+	return ((f32)rand() / ((f32)RAND_MAX + 1.0f));
 }
 
-inline f64 random_f64(f64 min, f64 max)
+inline f32 random_f32(f32 min, f32 max)
 {
-	return min + (max - min) * random_f64();
+	return min + (max - min) * random_f32();
 }
 
-inline f64 pow5(f64 x)
+inline f32 pow5(f32 x)
 {
-	f64 x2 = x * x;
+	f32 x2 = x * x;
 	return x2 * x2 * x;
 }
 
@@ -79,23 +79,23 @@ typedef struct vec3_t
 {
 	union
 	{
-		f64 v[3];
+		f32 v[3];
 		struct
 		{
-			f64 x, y, z;
+			f32 x, y, z;
 		};
 		struct
 		{
-			f64 r, g, b;
+			f32 r, g, b;
 		};
 	};
 
-	constexpr f64& operator[](i32 i)
+	constexpr f32& operator[](i32 i)
 	{
 		return v[i];
 	}
 
-	constexpr f64 operator[](i32 i) const
+	constexpr f32 operator[](i32 i) const
 	{
 		return v[i];
 	}
@@ -118,7 +118,7 @@ constexpr vec3_t operator+(vec3_t a, vec3_t b)
 	return vec3_t{a.x + b.x, a.y + b.y, a.z + b.z};
 }
 
-constexpr vec3_t operator*(vec3_t a, f64 b)
+constexpr vec3_t operator*(vec3_t a, f32 b)
 {
 	return vec3_t{b * a.x, b * a.y, b * a.z};
 }
@@ -128,12 +128,12 @@ constexpr vec3_t operator*(vec3_t a, vec3_t b)
 	return {a.x * b.x, a.y * b.y, a.z * b.z};
 }
 
-constexpr vec3_t operator*(f64 a, vec3_t b)
+constexpr vec3_t operator*(f32 a, vec3_t b)
 {
 	return b * a;
 }
 
-constexpr vec3_t operator/(vec3_t a, f64 b)
+constexpr vec3_t operator/(vec3_t a, f32 b)
 {
 	return (1 / b) * a;
 }
@@ -162,33 +162,33 @@ constexpr vec3_t& operator/=(vec3_t& a, vec3_t b)
 	return a;
 }
 
-internal f64 vec3_length_squared(vec3_t a)
+internal f32 vec3_length_squared(vec3_t a)
 {
 	return a.x * a.x + a.y * a.y + a.z * a.z;
 }
 
 internal b32 vec3_near_zero(vec3_t a)
 {
-	f64 s = 1e-8;
-	return (fabs(a.x) < s) && (fabs(a.y) < s) && (fabs(a.z) < s);
+	f32 s = 1e-8f;
+	return (fabsf(a.x) < s) && (fabsf(a.y) < s) && (fabsf(a.z) < s);
 }
 
-internal f64 vec3_length(vec3_t a)
+internal f32 vec3_length(vec3_t a)
 {
-	return sqrt(vec3_length_squared(a));
+	return sqrtf(vec3_length_squared(a));
 }
 
 internal vec3_t vec3_random()
 {
-	return {random_f64(), random_f64(), random_f64()};
+	return {random_f32(), random_f32(), random_f32()};
 }
 
-internal vec3_t vec3_random(f64 min, f64 max)
+internal vec3_t vec3_random(f32 min, f32 max)
 {
-	return {random_f64(min, max), random_f64(min, max), random_f64(min, max)};
+	return {random_f32(min, max), random_f32(min, max), random_f32(min, max)};
 }
 
-internal f64 vec3_dot(vec3_t a, vec3_t b)
+internal f32 vec3_dot(vec3_t a, vec3_t b)
 {
 	return a.x * b.x + a.y * b.y + a.z * b.z;
 }
@@ -211,7 +211,7 @@ internal vec3_t vec3_random_in_unit_disk()
 {
 	while (true)
 	{
-		vec3_t p = {random_f64(-1, 1), random_f64(-1, 1), 0};
+		vec3_t p = {random_f32(-1, 1), random_f32(-1, 1), 0};
 		if (vec3_length_squared(p) < 1)
 		{
 			return p;
@@ -224,10 +224,10 @@ internal vec3_t vec3_random_unit_vector()
 	while (true)
 	{
 		vec3_t p	 = vec3_random(-1, 1);
-		f64	   lensq = vec3_length_squared(p);
+		f32	   lensq = vec3_length_squared(p);
 		if (1e-160 < lensq && lensq <= 1)
 		{
-			return p / sqrt(lensq);
+			return p / sqrtf(lensq);
 		}
 	}
 }
@@ -250,11 +250,11 @@ internal vec3_t vec3_reflect(vec3_t v, vec3_t n)
 	return v - 2 * vec3_dot(v, n) * n;
 }
 
-internal vec3_t vec3_refract(vec3_t uv, vec3_t n, f64 etai_over_etat)
+internal vec3_t vec3_refract(vec3_t uv, vec3_t n, f32 etai_over_etat)
 {
-	f64	   cos_theta	  = fmin(vec3_dot(vec3_t{0, 0, 0} - uv, n), 1.0);
+	f32	   cos_theta	  = fminf(vec3_dot(vec3_t{0, 0, 0} - uv, n), 1.0);
 	vec3_t r_out_perp	  = etai_over_etat * (uv + cos_theta * n);
-	vec3_t r_out_parallel = -sqrt(fabs(1.0 - vec3_length_squared(r_out_perp))) * n;
+	vec3_t r_out_parallel = -sqrtf(fabsf(1.0f - vec3_length_squared(r_out_perp))) * n;
 	return r_out_perp + r_out_parallel;
 }
 

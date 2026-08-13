@@ -6,11 +6,11 @@
 
 #define color vec3_t
 
-inline internal f64 linear_to_gamma(f64 linear_component)
+inline internal f32 linear_to_gamma(f32 linear_component)
 {
 	if (linear_component > 0)
 	{
-		return sqrt(linear_component);
+		return sqrtf(linear_component);
 	}
 
 	return 0;
@@ -18,15 +18,15 @@ inline internal f64 linear_to_gamma(f64 linear_component)
 
 internal vec3i byterange_from_color(color color)
 {
-	local_persist const interval_t intensity = {0.000, 0.999};
+	local_persist const interval_t intensity = {0.000f, 0.999f};
 
-	f64 r = linear_to_gamma(color.x);
-	f64 g = linear_to_gamma(color.y);
-	f64 b = linear_to_gamma(color.z);
+	f32 r = linear_to_gamma(color.x);
+	f32 g = linear_to_gamma(color.y);
+	f32 b = linear_to_gamma(color.z);
 
-	i32 rbyte = (255.999 * interval_clamp(intensity, r));
-	i32 gbyte = (255.999 * interval_clamp(intensity, g));
-	i32 bbyte = (255.999 * interval_clamp(intensity, b));
+	i32 rbyte = (i32)(255.999f * interval_clamp(intensity, r));
+	i32 gbyte = (i32)(255.999f * interval_clamp(intensity, g));
+	i32 bbyte = (i32)(255.999f * interval_clamp(intensity, b));
 
 	return {rbyte, gbyte, bbyte};
 }

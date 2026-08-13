@@ -10,7 +10,7 @@ typedef struct ray_t
 } ray_t;
 
 // P(t) = A + tb
-internal point3_t ray_point_at(ray_t* r, f64 t)
+internal point3_t ray_point_at(ray_t* r, f32 t)
 {
 	return r->origin + t * r->direction;
 }

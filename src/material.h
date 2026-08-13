@@ -19,14 +19,14 @@ typedef enum material_type_t : u8
 typedef struct material_t
 {
 	color			albedo;
-	f64				fuzz;
-	f64				refraction_index;
+	f32				fuzz;
+	f32				refraction_index;
 	material_type_t type;
 } material_t;
 
-internal f64 reflectance(f64 cosine, f64 refraction_index)
+internal f32 reflectance(f32 cosine, f32 refraction_index)
 {
-	f64 r0 = (1 - refraction_index) / (1 + refraction_index);
+	f32 r0 = (1 - refraction_index) / (1 + refraction_index);
 	r0	   = r0 * r0;
 	return r0 + (1 - r0) * pow5((1 - cosine));
 }
@@ -61,16 +61,16 @@ internal b32 scatter(material_t* mat, ray_t* r_in, hit_record_t* rec, color* att
 		case DIELECTRIC:
 		{
 			*attenuation = color{1, 1, 1};
-			f64 ri		 = rec->front_face ? (1.0 / mat->refraction_index) : mat->refraction_index;
+			f32 ri		 = rec->front_face ? (1.0f / mat->refraction_index) : mat->refraction_index;
 
 			vec3_t unit_direction = vec3_unit_vector(r_in->direction);
-			f64	   cos_theta	  = fmin(vec3_dot(-unit_direction, rec->normal), 1.0);
-			f64	   sin_theta	  = sqrt(1.0 - cos_theta * cos_theta);
+			f32	   cos_theta	  = fminf(vec3_dot(-unit_direction, rec->normal), 1.0f);
+			f32	   sin_theta	  = sqrtf(1.0f - cos_theta * cos_theta);
 
-			b32	   cannot_refract = ri * sin_theta > 1.0;
+			b32	   cannot_refract = ri * sin_theta > 1.0f;
 			vec3_t direction;
 
-			if (cannot_refract || reflectance(cos_theta, ri) > random_f64())
+			if (cannot_refract || reflectance(cos_theta, ri) > random_f32())
 			{
 				direction = vec3_reflect(unit_direction, rec->normal);
 			}
