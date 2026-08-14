@@ -21,13 +21,14 @@ CLFLAGS=(
     -Wno-missing-braces
     -Wno-missing-field-initializers
     -Wno-deprecated-declarations
+    -mavx2
+    -mfma
 )
 
 if [[ "$CONFIG" == "release" ]]; then
     CONFIGFLAGS=(
         -DNDEBUG
         -O2
-        -mavx2
     )
 else
     CONFIGFLAGS=(

@@ -130,6 +130,10 @@ int main(void)
 		exit(1);
 	}
 
+	while (world->count % 8 != 0)
+	{
+		object_group_add(world, object_t{{0, 0, 0}, 0.0f, NULL, SPHERE});
+	}
 	render(cam, world);
 
 	free(mat3);
