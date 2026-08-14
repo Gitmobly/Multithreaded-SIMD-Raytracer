@@ -10,8 +10,8 @@
 int main(void)
 {
 	// World
-	object_group_t* world = (object_group_t*)malloc(sizeof(object_group_t));
-	world->count		  = 0;
+	objects_t* world = (objects_t*)malloc(sizeof(objects_t));
+	world->count	 = 0;
 
 	camera_t* cam = (camera_t*)malloc(sizeof(camera_t));
 	camera_initialize(cam);

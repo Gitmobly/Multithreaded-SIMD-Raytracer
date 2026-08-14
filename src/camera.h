@@ -97,7 +97,7 @@ internal void camera_initialize(camera_t* camera)
 	camera->max_depth			= DEFAULT_MAX_DEPTH;
 }
 
-internal color ray_color(ray_t* r, i32 depth, object_group_t* world)
+internal color ray_color(ray_t* r, i32 depth, objects_t* world)
 {
 	if (depth <= 0)
 	{
@@ -124,7 +124,7 @@ internal color ray_color(ray_t* r, i32 depth, object_group_t* world)
 	return (1.0f - a) * color{1.0f, 1.0f, 1.0f} + a * color{0.5f, 0.7f, 1.0f};
 }
 
-internal void render(camera_t* camera, object_group_t* world)
+internal void render(camera_t* camera, objects_t* world)
 {
 	FILE* img_file;
 	char  header_buf[DEFAULT_BUF_SIZE];

@@ -18,27 +18,34 @@ typedef enum object_shape_t : u8
 typedef struct object_t
 {
 	point3_t	   center;
-	f32			   radius; // For spheres
+	f32			   radius;
 	material_t*	   mat;
 	object_shape_t shape;
 } object_t;
 
-typedef struct object_group_t
+typedef struct objects_t
 {
-	object_t objects[MAX_WORLD_OBJECTS];
-	i32		 count;
-} object_group_t;
+	f32			   center_x[MAX_WORLD_OBJECTS];
+	f32			   center_y[MAX_WORLD_OBJECTS];
+	f32			   center_z[MAX_WORLD_OBJECTS];
+	f32			   radius[MAX_WORLD_OBJECTS]; // For spheres
+	material_t*	   mat[MAX_WORLD_OBJECTS];
+	object_shape_t shape[MAX_WORLD_OBJECTS];
+	i32			   count;
+} objects_t;
 
-internal b32 hit(object_t* object, ray_t* r, interval_t ray_t, hit_record_t* rec)
+internal b32 hit(objects_t* o, i32 i, ray_t* r, interval_t ray_t, hit_record_t* rec)
 {
-	switch (object->shape)
+	switch (o->shape[i])
 	{
 		case SPHERE:
 		{
-			vec3_t oc			= object->center - r->origin;
+			vec3_t center = {o->center_x[i], o->center_y[i], o->center_z[i]};
+
+			vec3_t oc			= center - r->origin;
 			f32	   a			= vec3_length_squared(r->direction);
 			f32	   h			= vec3_dot(r->direction, oc);
-			f32	   c			= vec3_length_squared(oc) - object->radius * object->radius;
+			f32	   c			= vec3_length_squared(oc) - o->radius[i] * o->radius[i];
 			f32	   discriminant = h * h - a * c;
 
 			if (discriminant < 0)
@@ -60,9 +67,9 @@ internal b32 hit(object_t* object, ray_t* r, interval_t ray_t, hit_record_t* rec
 
 			rec->t				  = root;
 			rec->p				  = ray_point_at(r, rec->t);
-			vec3_t outward_normal = (rec->p - object->center) / object->radius;
+			vec3_t outward_normal = (rec->p - center) / o->radius[i];
 			hit_record_set_face_normal(rec, r, outward_normal);
-			rec->mat = object->mat;
+			rec->mat = o->mat[i];
 
 			return true;
 		}
@@ -76,7 +83,7 @@ internal b32 hit(object_t* object, ray_t* r, interval_t ray_t, hit_record_t* rec
 	}
 }
 
-internal b32 evaluate_all_object_hits(object_group_t* o, ray_t* r, interval_t ray_t, hit_record_t* rec)
+internal b32 evaluate_all_object_hits(objects_t* o, ray_t* r, interval_t ray_t, hit_record_t* rec)
 {
 	hit_record_t temp_rec;
 	b32			 hit_anything	= false;
@@ -84,7 +91,7 @@ internal b32 evaluate_all_object_hits(object_group_t* o, ray_t* r, interval_t ra
 
 	for (i32 i = 0; i < o->count; ++i)
 	{
-		if (hit(&o->objects[i], r, interval_t{ray_t.min, closest_so_far}, &temp_rec))
+		if (hit(o, i, r, interval_t{ray_t.min, closest_so_far}, &temp_rec))
 		{
 			hit_anything   = true;
 			closest_so_far = temp_rec.t;
@@ -95,7 +102,7 @@ internal b32 evaluate_all_object_hits(object_group_t* o, ray_t* r, interval_t ra
 	return hit_anything;
 }
 
-internal b32 object_group_add(object_group_t* g, object_t o)
+internal b32 object_group_add(objects_t* g, object_t o)
 {
 	if (g->count >= MAX_WORLD_OBJECTS - 1)
 	{
@@ -103,7 +110,14 @@ internal b32 object_group_add(object_group_t* g, object_t o)
 		return false;
 	}
 
-	g->objects[g->count++] = o;
+	i32 i		   = g->count++;
+	g->center_x[i] = o.center.x;
+	g->center_y[i] = o.center.y;
+	g->center_z[i] = o.center.z;
+	g->radius[i]   = o.radius;
+	g->mat[i]	   = o.mat;
+	g->shape[i]	   = o.shape;
+
 	return true;
 }
 
