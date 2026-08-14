@@ -7,7 +7,9 @@ Under construction
 ## Build & run instructions
 
 `./build.sh -release` on a linux machine with an AVX2 and FMA compatible processor.
+
 `cd build`
+
 `./main`
 
 This will output an `image.ppm` containing the image. 
