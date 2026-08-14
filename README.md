@@ -44,26 +44,26 @@ Reference profile - [Peter Shirley's excellent inOneWeekend resource](https://ra
 My initial implementation:
 
 ```
- Performance counter stats for './inOneWeekend':
+ Performance counter stats for './main':
 
                  0      context-switches:u               #      0.0 cs/sec  cs_per_second     
                  0      cpu-migrations:u                 #      0.0 migrations/sec  migrations_per_second
-               155      page-faults:u                    #      2.8 faults/sec  page_faults_per_second
-         56,272.65 msec task-clock:u                     #      1.0 CPUs  CPUs_utilized       
-    25,577,038,181      L1-dcache-load-misses:u          #     10.3 %  l1d_miss_rate            (30.00%)
-           641,769      L1-icache-load-misses:u          #      0.1 %  l1i_miss_rate            (30.00%)
-        79,315,319      branch-misses:u                  #      0.1 %  branch_miss_rate         (30.00%)
-    65,176,132,378      branches:u                       #   1158.2 M/sec  branch_frequency     (30.00%)
-   229,604,451,070      cpu-cycles:u                     #      4.1 GHz  cycles_frequency       (40.00%)
-   617,819,893,396      instructions:u                   #      2.7 instructions  insn_per_cycle  (40.00%)
-     1,023,007,001      stalled-cycles-frontend:u        #     0.00 frontend_cycles_idle        (40.00%)
-         4,179,549      dTLB-loads:u                     #      5.4 %  dtlb_miss_rate           (30.00%)
-            20,082      iTLB-loads:u                     #     31.1 %  itlb_miss_rate           (30.00%)
+               150      page-faults:u                    #      5.2 faults/sec  page_faults_per_second
+         28,865.47 msec task-clock:u                     #      1.0 CPUs  CPUs_utilized       
+       281,740,355      L1-dcache-load-misses:u          #      0.2 %  l1d_miss_rate            (30.00%)
+           327,902      L1-icache-load-misses:u          #      0.1 %  l1i_miss_rate            (30.00%)
+        76,079,980      branch-misses:u                  #      0.2 %  branch_miss_rate         (30.00%)
+    33,527,558,656      branches:u                       #   1161.5 M/sec  branch_frequency     (30.00%)
+   117,169,623,112      cpu-cycles:u                     #      4.1 GHz  cycles_frequency       (40.00%)
+   427,489,444,657      instructions:u                   #      3.6 instructions  insn_per_cycle  (40.00%)
+     1,236,897,185      stalled-cycles-frontend:u        #     0.01 frontend_cycles_idle        (40.00%)
+         1,801,754      dTLB-loads:u                     #      7.1 %  dtlb_miss_rate           (30.00%)
+            33,952      iTLB-loads:u                     #      9.9 %  itlb_miss_rate           (30.00%)
 
-      56.281917514 seconds time elapsed
+      28.883681688 seconds time elapsed
 
-      55.656189000 seconds user
-       0.007932000 seconds sys
+      28.566628000 seconds user
+       0.007930000 seconds sys
 ```
 
 My implementation with SIMD:
