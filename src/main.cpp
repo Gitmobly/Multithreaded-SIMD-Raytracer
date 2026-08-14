@@ -138,7 +138,7 @@ int main(void)
 		object_group_add(world, object_t{{0, 0, 0}, 0.0f, NULL, SPHERE});
 	}
 
-	render(cam, world, &rng);
+	render(cam, world);
 
 	free(mat3);
 	free(mat2);

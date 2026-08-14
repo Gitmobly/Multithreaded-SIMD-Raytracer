@@ -23,7 +23,8 @@ CLFLAGS=(
     -Wno-deprecated-declarations
     -mavx2
     -mfma
-)
+    -pthread
+    )
 
 if [[ "$CONFIG" == "release" ]]; then
     CONFIGFLAGS=(

@@ -7,6 +7,9 @@
 #include "ray.h"
 #include "types.h"
 
+#include <pthread.h>
+#include <unistd.h>
+
 #define DEFAULT_BUF_SIZE		  256				 // Arbitrary size of buffer for string manipulation
 #define DEFAULT_ASPECT_RATIO	  (16.0f / 9.0f)	 // Ratio of image with over height
 #define DEFAULT_IMG_W			  1200				 // Rendered image width in pixels
@@ -18,6 +21,8 @@
 #define DEFAULT_VUP				  vec3_t{0, 1, 0}	 // Camera-relative "up" direction
 #define DEFAULT_DEFOCUS_ANGLE	  0.6f				 // Variation angle of rays through each pixel
 #define DEFAULT_FOCUS_DIST		  10.0f				 // Distance from camera lookfrom to plane of perfect focus
+
+#define RENDER_SEED 0x0ull
 
 typedef struct camera_t
 {
@@ -124,7 +129,42 @@ internal color ray_color(ray_t* r, i32 depth, objects_t* world, pcg32_random_t* 
 	return (1.0f - a) * color{1.0f, 1.0f, 1.0f} + a * color{0.5f, 0.7f, 1.0f};
 }
 
-internal void render(camera_t* camera, objects_t* world, pcg32_random_t* rng)
+typedef struct render_work_t
+{
+	camera_t*  camera;
+	objects_t* world;
+	color*	   fb;
+	i32		   width;
+	i32		   height;
+	i32*	   next_row;
+} render_work_t;
+
+internal void* render_worker(void* r)
+{
+	render_work_t* work = (render_work_t*)r;
+	pcg32_random_t rng;
+
+	i32 j;
+	while ((j = __atomic_fetch_add(work->next_row, 1, __ATOMIC_RELAXED)) < work->height)
+	{
+		pcg32_srandom_r(&rng, RENDER_SEED, (u64)j);
+		for (i32 i = 0; i < work->width; ++i)
+		{
+			color pixel_color = {0, 0, 0};
+			for (i32 sample = 0; sample < DEFAULT_SAMPLES_PER_PIXEL; ++sample)
+			{
+				ray_t r = get_ray(work->camera, i, j, &rng);
+				pixel_color += ray_color(&r, work->camera->max_depth, work->world, &rng);
+			}
+
+			work->fb[(size_t)(j * work->width + i)] = pixel_color * work->camera->pixel_samples_scale;
+		}
+	}
+
+	return NULL;
+}
+
+internal void render(camera_t* camera, objects_t* world)
 {
 	const i32 w = DEFAULT_IMG_W;
 	const i32 h = camera->img_h;
@@ -132,20 +172,36 @@ internal void render(camera_t* camera, objects_t* world, pcg32_random_t* rng)
 	color* fb = (color*)malloc(size_t(w * h) * sizeof(color));
 	ASSERT(fb && "Failed to allocate a framebuffer.");
 
-	for (i32 j = 0; j < h; ++j)
+	i32 thread_count = (i32)sysconf(_SC_NPROCESSORS_ONLN);
+	if (thread_count < 1)
 	{
-		for (i32 i = 0; i < w; ++i)
-		{
-			color pixel_color = {0, 0, 0};
-			for (i32 sample = 0; sample < DEFAULT_SAMPLES_PER_PIXEL; ++sample)
-			{
-				ray_t r = get_ray(camera, i, j, rng);
-				pixel_color += ray_color(&r, camera->max_depth, world, rng);
-			}
-
-			fb[(size_t)(j * w + i)] = pixel_color * camera->pixel_samples_scale;
-		}
+		thread_count = 1;
 	}
+
+	i32 next_row = 0;
+
+	render_work_t work = {
+		.camera	  = camera,
+		.world	  = world,
+		.fb		  = fb,
+		.width	  = w,
+		.height	  = h,
+		.next_row = &next_row,
+	};
+
+	pthread_t* threads = (pthread_t*)malloc(sizeof(pthread_t) * (size_t)thread_count);
+
+	for (i32 t = 0; t < thread_count; ++t)
+	{
+		pthread_create(&threads[t], NULL, render_worker, &work);
+	}
+
+	for (i32 t = 0; t < thread_count; ++t)
+	{
+		pthread_join(threads[t], NULL);
+	}
+
+	free(threads);
 
 	FILE* img_file;
 	img_file = fopen("image.ppm", "wb");

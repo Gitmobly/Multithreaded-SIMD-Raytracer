@@ -73,6 +73,15 @@ inline u32 pcg32_random_r(pcg32_random_t* rng)
 	return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
 }
 
+inline void pcg32_srandom_r(pcg32_random_t* rng, uint64_t initstate, uint64_t initseq)
+{
+	rng->state = 0U;
+	rng->inc   = (initseq << 1u) | 1u;
+	pcg32_random_r(rng);
+	rng->state += initstate;
+	pcg32_random_r(rng);
+}
+
 inline f32 random_f32(pcg32_random_t* rng)
 {
 	const u32 max = 1 << 24;
