@@ -62,7 +62,7 @@ struct pcg_state_setseq_64
 };
 typedef struct pcg_state_setseq_64 pcg32_random_t;
 
-#define PCG32_INITIALIZER {0x853c49e6748fea9bULL, 0xda3e39cb94b95bdbULL}
+#define PCG32_INITIALIZER {0x853c49e6748fea9bULL, 0xda3e39cb94b95bdcULL}
 
 inline u32 pcg32_random_r(pcg32_random_t* rng)
 {
