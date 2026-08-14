@@ -33,25 +33,25 @@ typedef struct camera_t
 	i32		 max_depth;
 } camera_t;
 
-internal vec3_t sample_square()
+internal vec3_t sample_square(pcg32_random_t* rng)
 {
-	return {random_f32() - 0.5f, random_f32() - 0.5f, 0.0f};
+	return {random_f32(rng) - 0.5f, random_f32(rng) - 0.5f, 0.0f};
 }
 
-internal point3_t defocus_disk_sample(camera_t* cam)
+internal point3_t defocus_disk_sample(camera_t* cam, pcg32_random_t* rng)
 {
-	vec3_t p = vec3_random_in_unit_disk();
+	vec3_t p = vec3_random_in_unit_disk(rng);
 	return cam->center + (p.x * cam->defocus_disk_u) + (p.y * cam->defocus_disk_v);
 }
 
-internal ray_t get_ray(camera_t* cam, i32 i, i32 j)
+internal ray_t get_ray(camera_t* cam, i32 i, i32 j, pcg32_random_t* rng)
 {
-	vec3_t offset		= sample_square();
+	vec3_t offset		= sample_square(rng);
 	vec3_t pixel_sample = cam->pixel00_loc								//
 						  + (((f32)i + offset.x) * cam->pixel_delta_u)	//
 						  + (((f32)j + offset.y) * cam->pixel_delta_v); //
 
-	point3_t ray_origin	   = (DEFAULT_DEFOCUS_ANGLE <= 0) ? cam->center : defocus_disk_sample(cam);
+	point3_t ray_origin	   = (DEFAULT_DEFOCUS_ANGLE <= 0) ? cam->center : defocus_disk_sample(cam, rng);
 	vec3_t	 ray_direction = pixel_sample - ray_origin;
 
 	return {ray_origin, ray_direction};
@@ -97,7 +97,7 @@ internal void camera_initialize(camera_t* camera)
 	camera->max_depth			= DEFAULT_MAX_DEPTH;
 }
 
-internal color ray_color(ray_t* r, i32 depth, objects_t* world)
+internal color ray_color(ray_t* r, i32 depth, objects_t* world, pcg32_random_t* rng)
 {
 	if (depth <= 0)
 	{
@@ -111,9 +111,9 @@ internal color ray_color(ray_t* r, i32 depth, objects_t* world)
 		ray_t scattered;
 		color attenuation;
 
-		if (scatter(rec.mat, r, &rec, &attenuation, &scattered))
+		if (scatter(rec.mat, r, &rec, &attenuation, &scattered, rng))
 		{
-			return (attenuation * ray_color(&scattered, depth - 1, world));
+			return (attenuation * ray_color(&scattered, depth - 1, world, rng));
 		}
 
 		return {0, 0, 0};
@@ -124,7 +124,7 @@ internal color ray_color(ray_t* r, i32 depth, objects_t* world)
 	return (1.0f - a) * color{1.0f, 1.0f, 1.0f} + a * color{0.5f, 0.7f, 1.0f};
 }
 
-internal void render(camera_t* camera, objects_t* world)
+internal void render(camera_t* camera, objects_t* world, pcg32_random_t* rng)
 {
 	const i32 w = DEFAULT_IMG_W;
 	const i32 h = camera->img_h;
@@ -139,8 +139,8 @@ internal void render(camera_t* camera, objects_t* world)
 			color pixel_color = {0, 0, 0};
 			for (i32 sample = 0; sample < DEFAULT_SAMPLES_PER_PIXEL; ++sample)
 			{
-				ray_t r = get_ray(camera, i, j);
-				pixel_color += ray_color(&r, camera->max_depth, world);
+				ray_t r = get_ray(camera, i, j, rng);
+				pixel_color += ray_color(&r, camera->max_depth, world, rng);
 			}
 
 			fb[(size_t)(j * w + i)] = pixel_color * camera->pixel_samples_scale;

@@ -55,14 +55,35 @@ inline f32 degrees_to_radians(f32 degrees)
 	return degrees * PI / 180.0f;
 }
 
-inline f32 random_f32()
+struct pcg_state_setseq_64
 {
-	return ((f32)rand() / ((f32)RAND_MAX + 1.0f));
+	u64 state;
+	u64 inc;
+};
+typedef struct pcg_state_setseq_64 pcg32_random_t;
+
+#define PCG32_INITIALIZER {0x853c49e6748fea9bULL, 0xda3e39cb94b95bdbULL}
+
+inline u32 pcg32_random_r(pcg32_random_t* rng)
+{
+	u64 oldstate   = rng->state;
+	rng->state	   = oldstate * 6364136223846793005ULL + rng->inc;
+	u32 xorshifted = (u32)(((oldstate >> 18u) ^ oldstate) >> 27u);
+	u32 rot		   = oldstate >> 59u;
+	return (xorshifted >> rot) | (xorshifted << ((-rot) & 31));
 }
 
-inline f32 random_f32(f32 min, f32 max)
+inline f32 random_f32(pcg32_random_t* rng)
 {
-	return min + (max - min) * random_f32();
+	const u32 max = 1 << 24;
+	u32		  r	  = pcg32_random_r(rng);
+	r &= max - 1;
+	return (f32)(r) * 1.0f / max;
+}
+
+inline f32 random_f32(f32 min, f32 max, pcg32_random_t* rng)
+{
+	return min + (max - min) * random_f32(rng);
 }
 
 inline f32 pow5(f32 x)
@@ -178,14 +199,14 @@ internal f32 vec3_length(vec3_t a)
 	return sqrtf(vec3_length_squared(a));
 }
 
-internal vec3_t vec3_random()
+internal vec3_t vec3_random(pcg32_random_t* rng)
 {
-	return {random_f32(), random_f32(), random_f32()};
+	return {random_f32(rng), random_f32(rng), random_f32(rng)};
 }
 
-internal vec3_t vec3_random(f32 min, f32 max)
+internal vec3_t vec3_random(f32 min, f32 max, pcg32_random_t* rng)
 {
-	return {random_f32(min, max), random_f32(min, max), random_f32(min, max)};
+	return {random_f32(min, max, rng), random_f32(min, max, rng), random_f32(min, max, rng)};
 }
 
 internal f32 vec3_dot(vec3_t a, vec3_t b)
@@ -207,11 +228,11 @@ internal vec3_t vec3_unit_vector(vec3_t a)
 	return a / vec3_length(a);
 }
 
-internal vec3_t vec3_random_in_unit_disk()
+internal vec3_t vec3_random_in_unit_disk(pcg32_random_t* rng)
 {
 	while (true)
 	{
-		vec3_t p = {random_f32(-1, 1), random_f32(-1, 1), 0};
+		vec3_t p = {random_f32(-1, 1, rng), random_f32(-1, 1, rng), 0};
 		if (vec3_length_squared(p) < 1)
 		{
 			return p;
@@ -219,11 +240,11 @@ internal vec3_t vec3_random_in_unit_disk()
 	}
 }
 
-internal vec3_t vec3_random_unit_vector()
+internal vec3_t vec3_random_unit_vector(pcg32_random_t* rng)
 {
 	while (true)
 	{
-		vec3_t p	 = vec3_random(-1, 1);
+		vec3_t p	 = vec3_random(-1, 1, rng);
 		f32	   lensq = vec3_length_squared(p);
 		if (1e-160 < lensq && lensq <= 1)
 		{
@@ -232,9 +253,9 @@ internal vec3_t vec3_random_unit_vector()
 	}
 }
 
-internal vec3_t vec3_random_on_hemisphere(vec3_t normal)
+internal vec3_t vec3_random_on_hemisphere(vec3_t normal, pcg32_random_t* rng)
 {
-	vec3_t on_unit_sphere = vec3_random_unit_vector();
+	vec3_t on_unit_sphere = vec3_random_unit_vector(rng);
 	if (vec3_dot(on_unit_sphere, normal) > 0.0)
 	{
 		return on_unit_sphere;

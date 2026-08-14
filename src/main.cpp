@@ -9,6 +9,9 @@
 
 int main(void)
 {
+	// PCG32 random instance
+	static pcg32_random_t rng = PCG32_INITIALIZER;
+
 	// World
 	objects_t* world = (objects_t*)malloc(sizeof(objects_t));
 	world->count	 = 0;
@@ -36,8 +39,8 @@ int main(void)
 		for (i32 b = -11; b < 11; ++b)
 		{
 			ASSERT(success && "Added too many objects to the world.");
-			f32		 choose_mat = random_f32();
-			point3_t center		= {a + 0.9f * random_f32(), 0.2f, b + 0.9f * random_f32()};
+			f32		 choose_mat = random_f32(&rng);
+			point3_t center		= {a + 0.9f * random_f32(&rng), 0.2f, b + 0.9f * random_f32(&rng)};
 
 			if (vec3_length(center - point3_t{4, 0.2f, 0}) > 0.9f)
 			{
@@ -47,7 +50,7 @@ int main(void)
 				if (choose_mat < 0.8)
 				{
 					// diffuse
-					color albedo = vec3_random() * vec3_random();
+					color albedo = vec3_random(&rng) * vec3_random(&rng);
 
 					*sphere_material = material_t{
 						.albedo			  = albedo,
@@ -59,8 +62,8 @@ int main(void)
 				else if (choose_mat < 0.95)
 				{
 					// metal
-					color albedo	 = vec3_random(0.5f, 1);
-					f32	  fuzz		 = random_f32(0, 0.5f);
+					color albedo	 = vec3_random(0.5f, 1, &rng);
+					f32	  fuzz		 = random_f32(0, 0.5f, &rng);
 					*sphere_material = material_t{
 						.albedo			  = albedo,
 						.fuzz			  = fuzz,
@@ -134,7 +137,8 @@ int main(void)
 	{
 		object_group_add(world, object_t{{0, 0, 0}, 0.0f, NULL, SPHERE});
 	}
-	render(cam, world);
+
+	render(cam, world, &rng);
 
 	free(mat3);
 	free(mat2);

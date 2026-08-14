@@ -31,13 +31,14 @@ internal f32 reflectance(f32 cosine, f32 refraction_index)
 	return r0 + (1 - r0) * pow5((1 - cosine));
 }
 
-internal b32 scatter(material_t* mat, ray_t* r_in, hit_record_t* rec, color* attenuation, ray_t* scattered)
+internal b32 scatter(material_t* mat, ray_t* r_in, hit_record_t* rec, color* attenuation, ray_t* scattered,
+					 pcg32_random_t* rng)
 {
 	switch (mat->type)
 	{
 		case LAMBERTIAN:
 		{
-			vec3_t scatter_direction = rec->normal + vec3_random_unit_vector();
+			vec3_t scatter_direction = rec->normal + vec3_random_unit_vector(rng);
 
 			if (vec3_near_zero(scatter_direction))
 			{
@@ -52,7 +53,7 @@ internal b32 scatter(material_t* mat, ray_t* r_in, hit_record_t* rec, color* att
 		case METAL:
 		{
 			vec3_t reflected = vec3_reflect(r_in->direction, rec->normal);
-			reflected		 = vec3_unit_vector(reflected) + (mat->fuzz * vec3_random_unit_vector());
+			reflected		 = vec3_unit_vector(reflected) + (mat->fuzz * vec3_random_unit_vector(rng));
 			*scattered		 = {rec->p, reflected};
 			*attenuation	 = mat->albedo;
 			return (vec3_dot(scattered->direction, rec->normal) > 0);
@@ -70,7 +71,7 @@ internal b32 scatter(material_t* mat, ray_t* r_in, hit_record_t* rec, color* att
 			b32	   cannot_refract = ri * sin_theta > 1.0f;
 			vec3_t direction;
 
-			if (cannot_refract || reflectance(cos_theta, ri) > random_f32())
+			if (cannot_refract || reflectance(cos_theta, ri) > random_f32(rng))
 			{
 				direction = vec3_reflect(unit_direction, rec->normal);
 			}
