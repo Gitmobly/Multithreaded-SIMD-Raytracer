@@ -126,22 +126,15 @@ internal color ray_color(ray_t* r, i32 depth, objects_t* world)
 
 internal void render(camera_t* camera, objects_t* world)
 {
-	FILE* img_file;
-	char  header_buf[DEFAULT_BUF_SIZE];
+	const i32 w = DEFAULT_IMG_W;
+	const i32 h = camera->img_h;
 
-	img_file = fopen("image.ppm", "wb");
-	ASSERT(img_file && "Could not write to image.ppm.");
+	color* fb = (color*)malloc(size_t(w * h) * sizeof(color));
+	ASSERT(fb && "Failed to allocate a framebuffer.");
 
-	i32 header_length = snprintf(header_buf, DEFAULT_BUF_SIZE, "P3\n%d %d\n255\n", DEFAULT_IMG_W, camera->img_h);
-	fwrite(header_buf, sizeof(u8), (size_t)header_length, img_file);
-
-	char data_buf[DEFAULT_BUF_SIZE];
-	for (i32 j = 0; j < camera->img_h; ++j)
+	for (i32 j = 0; j < h; ++j)
 	{
-		printf("\rScanlines remaining: %d   ", camera->img_h - j);
-		fflush(stdout);
-		fflush(stdout);
-		for (i32 i = 0; i < DEFAULT_IMG_W; ++i)
+		for (i32 i = 0; i < w; ++i)
 		{
 			color pixel_color = {0, 0, 0};
 			for (i32 sample = 0; sample < DEFAULT_SAMPLES_PER_PIXEL; ++sample)
@@ -150,14 +143,28 @@ internal void render(camera_t* camera, objects_t* world)
 				pixel_color += ray_color(&r, camera->max_depth, world);
 			}
 
-			vec3i byterange	  = byterange_from_color(pixel_color * camera->pixel_samples_scale);
-			i32	  data_length = snprintf(data_buf, DEFAULT_BUF_SIZE * sizeof(char), "%d %d %d\n", byterange[0],
-										 byterange[1], byterange[2]);
-			fwrite(data_buf, sizeof(u8), (size_t)data_length, img_file);
+			fb[(size_t)(j * w + i)] = pixel_color * camera->pixel_samples_scale;
 		}
 	}
 
+	FILE* img_file;
+	img_file = fopen("image.ppm", "wb");
+	ASSERT(img_file && "Could not write to image.ppm.");
+
+	char buf[DEFAULT_BUF_SIZE];
+	i32	 header_length = snprintf(buf, DEFAULT_BUF_SIZE, "P3\n%d %d\n255\n", DEFAULT_IMG_W, camera->img_h);
+	fwrite(buf, sizeof(u8), (size_t)header_length, img_file);
+
+	for (i32 idx = 0; idx < w * h; ++idx)
+	{
+		vec3i byterange = byterange_from_color(fb[idx]);
+		i32	  data_length =
+			snprintf(buf, DEFAULT_BUF_SIZE * sizeof(char), "%d %d %d\n", byterange[0], byterange[1], byterange[2]);
+		fwrite(buf, sizeof(u8), (size_t)data_length, img_file);
+	}
+
 	fclose(img_file);
+	free(fb);
 }
 
 #endif
