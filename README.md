@@ -2,7 +2,7 @@
 
 Accompanying blog post:
 
-Under construction
+https://unresearch.ing/pillars_of_performance
 
 ## Build & run instructions
 
