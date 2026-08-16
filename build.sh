@@ -29,7 +29,8 @@ CLFLAGS=(
 if [[ "$CONFIG" == "release" ]]; then
     CONFIGFLAGS=(
         -DNDEBUG
-        -O2
+        -O3
+        -march=native
     )
 else
     CONFIGFLAGS=(

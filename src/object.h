@@ -66,9 +66,9 @@ internal void hit_block(objects_t* o, i32 i, __m256 ray_ox, __m256 ray_oy, __m25
 	__m256 far_combined_mask =
 		_mm256_and_ps(_mm256_cmp_ps(ray_i_max, far_root, _CMP_GT_OQ), _mm256_cmp_ps(far_root, ray_i_min, _CMP_GT_OQ));
 
-	__m256 root	 = _mm256_blendv_ps(far_root, near_root, near_combined_mask);
-	__m256 valid = _mm256_and_ps(hit_mask, _mm256_or_ps(near_combined_mask, far_combined_mask));
-	__m256 t	 = _mm256_blendv_ps(_mm256_set1_ps(INFINITY), root, valid);
+	__m256 nearest_root = _mm256_blendv_ps(far_root, near_root, near_combined_mask);
+	__m256 valid		= _mm256_and_ps(hit_mask, _mm256_or_ps(near_combined_mask, far_combined_mask));
+	__m256 t			= _mm256_blendv_ps(_mm256_set1_ps(INFINITY), nearest_root, valid);
 
 	__m256i lane_idx = _mm256_add_epi32(_mm256_set1_epi32(i), _mm256_setr_epi32(0, 1, 2, 3, 4, 5, 6, 7));
 	__m256	closest	 = _mm256_cmp_ps(t, *best_t, _CMP_LT_OQ);

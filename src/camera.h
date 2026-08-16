@@ -12,9 +12,9 @@
 
 #define DEFAULT_BUF_SIZE		  256				 // Arbitrary size of buffer for string manipulation
 #define DEFAULT_ASPECT_RATIO	  (16.0f / 9.0f)	 // Ratio of image with over height
-#define DEFAULT_IMG_W			  1200				 // Rendered image width in pixels
-#define DEFAULT_SAMPLES_PER_PIXEL 10				 // Count of random samples for each pixel
-#define DEFAULT_MAX_DEPTH		  20				 // Maximum number of ray bounces into scene
+#define DEFAULT_IMG_W			  800				 // Rendered image width in pixels
+#define DEFAULT_SAMPLES_PER_PIXEL 800				 // Count of random samples for each pixel
+#define DEFAULT_MAX_DEPTH		  40				 // Maximum number of ray bounces into scene
 #define DEFAULT_VERTICAL_FOV	  20				 // Vertical field of view
 #define DEFAULT_LOOKFROM		  point3_t{13, 2, 3} // Point camera is looking from
 #define DEFAULT_LOOKAT			  point3_t{0, 0, 0}	 // Point camera is looking at
